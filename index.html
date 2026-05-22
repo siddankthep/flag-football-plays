@@ -1,358 +1,866 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flag Football Play Designer</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-
-  <!-- ============ TOP BAR ============ -->
-  <header class="topbar">
-    <button id="backBtn" class="icon-btn ghost" title="Back / Playbook">
-      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-    <input type="text" id="playName" class="play-name-input" value="Play 1" aria-label="Play name">
-
-    <nav class="topbar-icons">
-      <button id="infoBtn" class="icon-btn" title="Play info">
-        <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="8" r="1.1" fill="currentColor"/><line x1="12" y1="11" x2="12" y2="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flag Football Play Designer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- ============ TOP BAR ============ -->
+    <header class="topbar">
+      <button id="backBtn" class="icon-btn ghost" title="Back / Playbook">
+        <svg viewBox="0 0 24 24" width="22" height="22">
+          <path
+            d="M15 6l-6 6 6 6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
       </button>
-      <button id="lockBtn" class="icon-btn" title="Lock players">
-        <svg viewBox="0 0 24 24" width="22" height="22"><rect x="6" y="11" width="12" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
-      </button>
-      <button id="formationsBtn" class="icon-btn" title="Formation presets">
-        <svg viewBox="0 0 24 24" width="22" height="22"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1.5"/><line x1="3" y1="14" x2="21" y2="14" stroke="currentColor" stroke-width="1.5"/></svg>
-      </button>
-      <button id="mirrorBtn" class="icon-btn" title="Flip play horizontally (F)">
-        <svg viewBox="0 0 24 24" width="22" height="22"><line x1="12" y1="3" x2="12" y2="21" stroke="currentColor" stroke-width="1.8" stroke-dasharray="2 2"/><path d="M9 8l-5 4 5 4z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M15 8l5 4-5 4z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-      </button>
-      <button id="routeBtn" class="icon-btn" title="Route tool (R)">
-        <svg viewBox="0 0 24 24" width="22" height="22"><polyline points="3,18 8,13 12,17 17,7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><polyline points="13,7 17,7 17,11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <button id="rosterBtn" class="icon-btn" title="Roster">
-        <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5 20a7 7 0 0 1 14 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      </button>
-      <button id="animPlayBtn" class="icon-btn" title="Play animation">
-        <svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><polygon points="10,8 16,12 10,16" fill="currentColor"/></svg>
-      </button>
-    </nav>
+      <input
+        type="text"
+        id="playName"
+        class="play-name-input"
+        value="Play 1"
+        aria-label="Play name"
+      />
 
-    <button id="filesBtn" class="icon-btn ghost" title="Save / Load / Export">
-      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M6 19a4 4 0 0 1 .5-8 5 5 0 0 1 10 .5 3.5 3.5 0 0 1-.5 7z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
-    </button>
-  </header>
-
-  <!-- ============ FIELD STAGE ============ -->
-  <main class="field-stage">
-    <svg id="field" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" preserveAspectRatio="xMidYMid meet" aria-label="Football field">
-      <defs></defs>
-      <g id="fieldLayer"></g>
-      <g id="annotationLayer"></g>
-      <g id="routeLayer"></g>
-      <g id="playerLayer"></g>
-      <g id="previewLayer"></g>
-    </svg>
-
-    <!-- Page navigation -->
-    <button id="prevPlayBtn" class="page-arrow page-prev" title="Previous play">
-      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-    <button id="nextPlayBtn" class="page-arrow page-next" title="Next play">
-      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-
-    <!-- Readout (top-left during pointer move) -->
-    <div class="readout" id="readout"></div>
-
-    <!-- Bottom toast (transient messages) -->
-    <div id="toast" class="toast" hidden></div>
-
-    <!-- ============ FLOATING ROUTE PANEL ============ -->
-    <div id="routePanel" class="route-panel" hidden>
-      <button class="rp-icon" id="rpClose" title="Done">
-        <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="9" fill="none" stroke="#16a34a" stroke-width="2"/><path d="M8 12l3 3 5-6" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-
-      <div class="rp-group">
-        <button class="rp-style style" data-style="smooth" title="Smooth route">
-          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 17 Q8 6 12 13 T21 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <nav class="topbar-icons">
+        <button id="infoBtn" class="icon-btn" title="Play info">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <circle
+              cx="12"
+              cy="12"
+              r="9"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+            <circle cx="12" cy="8" r="1.1" fill="currentColor" />
+            <line
+              x1="12"
+              y1="11"
+              x2="12"
+              y2="17"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+          </svg>
         </button>
-        <button class="rp-style style" data-style="straight" title="Straight route">
-          <svg viewBox="0 0 24 24" width="20" height="20"><line x1="5" y1="19" x2="19" y2="5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="13,5 19,5 19,11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button id="lockBtn" class="icon-btn" title="Lock players">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <rect
+              x="6"
+              y="11"
+              width="12"
+              height="9"
+              rx="1.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+            <path
+              d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+          </svg>
         </button>
-        <button class="rp-style style" data-style="zigzag" title="Zigzag (pre-snap motion)">
-          <svg viewBox="0 0 24 24" width="20" height="20"><polyline points="3,12 7,8 10,16 13,8 16,16 19,12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button id="formationsBtn" class="icon-btn" title="Formation presets">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <rect
+              x="3"
+              y="4"
+              width="18"
+              height="16"
+              rx="2"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+            <line
+              x1="3"
+              y1="9"
+              x2="21"
+              y2="9"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <line
+              x1="3"
+              y1="14"
+              x2="21"
+              y2="14"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+          </svg>
         </button>
-        <button class="rp-style style" data-style="dotted" title="Dotted (pass / hand-off)">
-          <svg viewBox="0 0 24 24" width="20" height="20"><line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="2 3"/></svg>
+        <button
+          id="mirrorBtn"
+          class="icon-btn"
+          title="Flip play horizontally (F)"
+        >
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <line
+              x1="12"
+              y1="3"
+              x2="12"
+              y2="21"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-dasharray="2 2"
+            />
+            <path
+              d="M9 8l-5 4 5 4z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            />
+            <path
+              d="M15 8l5 4-5 4z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+            />
+          </svg>
         </button>
+        <button id="routeBtn" class="icon-btn" title="Route tool (R)">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <polyline
+              points="3,18 8,13 12,17 17,7"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <polyline
+              points="13,7 17,7 17,11"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <button id="rosterBtn" class="icon-btn" title="Roster">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <circle
+              cx="12"
+              cy="8"
+              r="3.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+            <path
+              d="M5 20a7 7 0 0 1 14 0"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+        <button id="animPlayBtn" class="icon-btn" title="Play animation">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <circle
+              cx="12"
+              cy="12"
+              r="9"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+            <polygon points="10,8 16,12 10,16" fill="currentColor" />
+          </svg>
+        </button>
+      </nav>
+
+      <button id="filesBtn" class="icon-btn ghost" title="Save / Load / Export">
+        <svg viewBox="0 0 24 24" width="22" height="22">
+          <path
+            d="M6 19a4 4 0 0 1 .5-8 5 5 0 0 1 10 .5 3.5 3.5 0 0 1-.5 7z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+    </header>
+
+    <!-- ============ FIELD STAGE ============ -->
+    <main class="field-stage">
+      <svg
+        id="field"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 500 500"
+        preserveAspectRatio="xMidYMid meet"
+        aria-label="Football field"
+      >
+        <defs></defs>
+        <g id="fieldLayer"></g>
+        <g id="annotationLayer"></g>
+        <g id="routeLayer"></g>
+        <g id="playerLayer"></g>
+        <g id="previewLayer"></g>
+      </svg>
+
+      <!-- Page navigation -->
+      <button
+        id="prevPlayBtn"
+        class="page-arrow page-prev"
+        title="Previous play"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path
+            d="M15 6l-6 6 6 6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+      <button id="nextPlayBtn" class="page-arrow page-next" title="Next play">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path
+            d="M9 6l6 6-6 6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+
+      <!-- Readout (top-left during pointer move) -->
+      <div class="readout" id="readout"></div>
+
+      <!-- Bottom toast (transient messages) -->
+      <div id="toast" class="toast" hidden></div>
+
+      <!-- ============ FLOATING ROUTE PANEL ============ -->
+      <div id="routePanel" class="route-panel" hidden>
+        <button class="rp-icon" id="rpClose" title="Done">
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <circle
+              cx="12"
+              cy="12"
+              r="9"
+              fill="none"
+              stroke="#16a34a"
+              stroke-width="2"
+            />
+            <path
+              d="M8 12l3 3 5-6"
+              fill="none"
+              stroke="#16a34a"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+
+        <div class="rp-group">
+          <button
+            class="rp-style style"
+            data-style="smooth"
+            title="Smooth route"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <path
+                d="M3 17 Q8 6 12 13 T21 8"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+          <button
+            class="rp-style style"
+            data-style="straight"
+            title="Straight route"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <line
+                x1="5"
+                y1="19"
+                x2="19"
+                y2="5"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <polyline
+                points="13,5 19,5 19,11"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <button
+            class="rp-style style"
+            data-style="zigzag"
+            title="Zigzag (pre-snap motion)"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <polyline
+                points="3,12 7,8 10,16 13,8 16,16 19,12"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <button
+            class="rp-style style"
+            data-style="dotted"
+            title="Dotted (pass / hand-off)"
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <line
+                x1="4"
+                y1="12"
+                x2="20"
+                y2="12"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-dasharray="2 3"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div class="rp-sep"></div>
+
+        <div class="rp-group">
+          <button class="rp-cap cap" data-cap="arrow" title="Arrow cap">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <polyline
+                points="4,18 18,6"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <polyline
+                points="11,5 18,6 17,13"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <button class="rp-cap cap" data-cap="tee" title="Block (tee)">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <line
+                x1="4"
+                y1="18"
+                x2="17"
+                y2="6"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <line
+                x1="13"
+                y1="3"
+                x2="20"
+                y2="10"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+          <button class="rp-cap cap" data-cap="dot" title="Stop / settle (dot)">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <line
+                x1="4"
+                y1="18"
+                x2="15"
+                y2="7"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <circle cx="16" cy="7" r="2.5" fill="currentColor" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="rp-sep"></div>
+
+        <div class="rp-group">
+          <button class="rp-icon" id="rpIntended" title="Intended receiver">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <polygon
+                points="12,3 14.5,9 21,9.5 16,13.5 17.5,20 12,16.5 6.5,20 8,13.5 3,9.5 9.5,9"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <button class="rp-icon danger" id="rpClearRoute" title="Clear route">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <circle
+                cx="12"
+                cy="12"
+                r="9"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <line
+                x1="6"
+                y1="6"
+                x2="18"
+                y2="18"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div class="rp-sep"></div>
-
-      <div class="rp-group">
-        <button class="rp-cap cap" data-cap="arrow" title="Arrow cap">
-          <svg viewBox="0 0 24 24" width="20" height="20"><line x1="4" y1="18" x2="17" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polygon points="17,6 12,7 16,11" fill="currentColor"/></svg>
+      <!-- Animation bar (compact, bottom-center) -->
+      <div id="animBar" class="anim-bar" hidden>
+        <button id="resetBtn" class="anim-btn" title="Reset">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <path
+              d="M4 12a8 8 0 1 0 2.34-5.66"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <polyline
+              points="4,4 4,9 9,9"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
         </button>
-        <button class="rp-cap cap" data-cap="tee" title="Block (tee)">
-          <svg viewBox="0 0 24 24" width="20" height="20"><line x1="4" y1="18" x2="17" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="13" y1="3" x2="20" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <button id="playBtn" class="anim-btn primary" title="Play">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <polygon points="7,5 19,12 7,19" fill="currentColor" />
+          </svg>
         </button>
-        <button class="rp-cap cap" data-cap="dot" title="Stop / settle (dot)">
-          <svg viewBox="0 0 24 24" width="20" height="20"><line x1="4" y1="18" x2="15" y2="7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="7" r="2.5" fill="currentColor"/></svg>
+        <button id="pauseBtn" class="anim-btn" title="Pause">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <rect x="6" y="5" width="4" height="14" fill="currentColor" />
+            <rect x="14" y="5" width="4" height="14" fill="currentColor" />
+          </svg>
         </button>
+        <input type="range" id="scrubber" min="0" max="1000" value="0" />
+        <span id="timeReadout">0.0s / 0.0s</span>
+        <label class="speed">
+          <span>×</span>
+          <input
+            type="range"
+            id="speedRange"
+            min="0.25"
+            max="4"
+            step="0.05"
+            value="1"
+          />
+          <span id="speedLabel">1.0×</span>
+        </label>
       </div>
+    </main>
 
-      <div class="rp-sep"></div>
-
-      <div class="rp-group">
-        <button class="rp-icon" id="rpIntended" title="Intended receiver">
-          <svg viewBox="0 0 24 24" width="20" height="20"><polygon points="12,3 14.5,9 21,9.5 16,13.5 17.5,20 12,16.5 6.5,20 8,13.5 3,9.5 9.5,9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-        </button>
-        <button class="rp-icon danger" id="rpClearRoute" title="Clear route">
-          <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Animation bar (compact, bottom-center) -->
-    <div id="animBar" class="anim-bar" hidden>
-      <button id="resetBtn" class="anim-btn" title="Reset"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 12a8 8 0 1 0 2.34-5.66" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="4,4 4,9 9,9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      <button id="playBtn" class="anim-btn primary" title="Play"><svg viewBox="0 0 24 24" width="18" height="18"><polygon points="7,5 19,12 7,19" fill="currentColor"/></svg></button>
-      <button id="pauseBtn" class="anim-btn" title="Pause"><svg viewBox="0 0 24 24" width="18" height="18"><rect x="6" y="5" width="4" height="14" fill="currentColor"/><rect x="14" y="5" width="4" height="14" fill="currentColor"/></svg></button>
-      <input type="range" id="scrubber" min="0" max="1000" value="0">
-      <span id="timeReadout">0.0s / 0.0s</span>
-      <label class="speed">
-        <span>×</span>
-        <input type="range" id="speedRange" min="0.25" max="4" step="0.05" value="1">
-        <span id="speedLabel">1.0×</span>
-      </label>
-    </div>
-  </main>
-
-  <!-- ============ FLOATING TOOL FAB (route / text / ball / select) ============ -->
-  <div class="fab-tools">
-    <button class="tool active" data-tool="select" title="Select (V)">
-      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M5 3l13 9-6 1.5L9 20z" fill="currentColor"/></svg>
-    </button>
-    <button class="tool" data-tool="route" title="Route (R)">
-      <svg viewBox="0 0 24 24" width="20" height="20"><polyline points="3,18 8,13 12,17 17,7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="13,7 17,7 17,11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-    <button class="tool" data-tool="text" title="Text (T)">
-      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 5h12M12 5v15M9 20h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-    </button>
-    <button class="tool" data-tool="ball" title="Ball marker (B)">
-      <svg viewBox="0 0 24 24" width="20" height="20"><ellipse cx="12" cy="12" rx="9" ry="6" fill="currentColor"/></svg>
-    </button>
-    <button id="undoBtn" class="tool ghost" title="Undo (Ctrl+Z)">
-      <svg viewBox="0 0 24 24" width="20" height="20"><polyline points="4,9 4,4 9,4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 19a8 8 0 0 0-15-4.5L4 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-    <button id="redoBtn" class="tool ghost" title="Redo (Ctrl+Shift+Z)">
-      <svg viewBox="0 0 24 24" width="20" height="20"><polyline points="20,9 20,4 15,4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19a8 8 0 0 1 15-4.5L20 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-  </div>
-
-  <!-- Hidden form inputs that the JS still needs (kept for state plumbing) -->
-  <div hidden>
-    <input type="text" id="playbookName" value="Untitled Playbook">
-    <input type="file" id="fileInput" accept=".json">
-    <select id="teamSize">
-      <option value="4">4</option><option value="5" selected>5</option><option value="6">6</option>
-      <option value="7">7</option><option value="8">8</option><option value="9">9</option>
-    </select>
-    <select id="formationPreset">
-      <option value="trips-right">Trips Right</option>
-      <option value="spread">Spread</option>
-      <option value="empty">Empty</option>
-      <option value="singleback">Singleback</option>
-    </select>
-    <input type="checkbox" id="showFieldLines" checked>
-    <input type="color" id="teamColor" value="#1d4ed8">
-    <input type="text" id="playCategory">
-    <input type="text" id="playCallCode">
-    <textarea id="playNotes"></textarea>
-    <input type="checkbox" id="includeOnWristband" checked>
-    <input type="checkbox" id="intendedReceiver">
-  </div>
-
-  <!-- ============ POPOVERS / MODALS ============ -->
-
-  <!-- Files menu -->
-  <div id="filesMenu" class="menu-pop" hidden>
-    <button id="newPlaybookBtn">New playbook</button>
-    <button id="openBtn">Open .json…</button>
-    <button id="saveBtn">Save .json</button>
-    <div class="menu-sep"></div>
-    <button id="exportPngBtn">Export current play (PNG)</button>
-    <button id="exportSvgBtn">Export current play (SVG)</button>
-    <button id="exportPdfBtn">Export playbook (PDF)…</button>
-    <button id="wristbandBtn">Export wristband (PDF)…</button>
-  </div>
-
-  <!-- Plays / Playbook drawer -->
-  <div id="playsDrawer" class="drawer" hidden>
-    <div class="drawer-head">
-      <h3>Playbook</h3>
-      <input type="text" id="playbookNameVisible" placeholder="Playbook name">
-      <button class="icon-btn ghost drawer-close" data-close="playsDrawer">
-        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <!-- ============ FLOATING TOOL FAB (route / text / ball / select) ============ -->
+    <div class="fab-tools">
+      <button class="tool active" data-tool="select" title="Select (V)">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path d="M5 3l13 9-6 1.5L9 20z" fill="currentColor" />
+        </svg>
+      </button>
+      <button class="tool" data-tool="route" title="Route (R)">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <polyline
+            points="3,18 8,13 12,17 17,7"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <polyline
+            points="13,7 17,7 17,11"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+      <button class="tool" data-tool="text" title="Text (T)">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path
+            d="M6 5h12M12 5v15M9 20h6"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </svg>
+      </button>
+      <button class="tool" data-tool="ball" title="Ball marker (B)">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <ellipse cx="12" cy="12" rx="9" ry="6" fill="currentColor" />
+        </svg>
+      </button>
+      <button id="undoBtn" class="tool ghost" title="Undo (Ctrl+Z)">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <polyline
+            points="4,9 4,4 9,4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M20 19a8 8 0 0 0-15-4.5L4 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+      <button id="redoBtn" class="tool ghost" title="Redo (Ctrl+Shift+Z)">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <polyline
+            points="20,9 20,4 15,4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M4 19a8 8 0 0 1 15-4.5L20 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
       </button>
     </div>
-    <ul id="playsList" class="plays-list"></ul>
-    <button id="addPlayBtn" class="full">+ Add Play</button>
-    <div class="menu-sep"></div>
-    <div class="row">
-      <button id="duplicatePlayBtn">Duplicate</button>
-      <button id="flipPlayBtn">Flip</button>
-      <button id="deletePlayBtn" class="danger">Delete</button>
-    </div>
-  </div>
 
-  <!-- Roster drawer -->
-  <div id="rosterDrawer" class="drawer" hidden>
-    <div class="drawer-head">
-      <h3>Players</h3>
-      <button class="icon-btn ghost drawer-close" data-close="rosterDrawer">
-        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
-    </div>
-    <ul id="rosterList" class="roster-list"></ul>
-  </div>
-
-  <!-- Formations drawer -->
-  <div id="formationsDrawer" class="drawer" hidden>
-    <div class="drawer-head">
-      <h3>Formation</h3>
-      <button class="icon-btn ghost drawer-close" data-close="formationsDrawer">
-        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
-    </div>
-    <label>Team size
-      <select id="teamSizeVisible">
-        <option value="4">4 on 4</option>
-        <option value="5" selected>5 on 5</option>
-        <option value="6">6 on 6</option>
-        <option value="7">7 on 7</option>
-        <option value="8">8 on 8</option>
-        <option value="9">9 on 9</option>
+    <!-- Hidden form inputs that the JS still needs (kept for state plumbing) -->
+    <div hidden>
+      <input type="text" id="playbookName" value="Untitled Playbook" />
+      <input type="file" id="fileInput" accept=".json" />
+      <select id="teamSize">
+        <option value="4">4</option>
+        <option value="5" selected>5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
       </select>
-    </label>
-    <label>Preset
-      <select id="formationPresetVisible">
-        <option value="trips-right">Trips Right</option>
-        <option value="spread">Spread (2x2)</option>
-        <option value="empty">Empty</option>
+      <select id="formationPreset">
+        <option value="base-right">Base Right</option>
+        <option value="spread">Spread</option>
+        <option value="bunch">Bunch</option>
         <option value="singleback">Singleback</option>
       </select>
-    </label>
-    <button id="applyPreset" class="full primary">Apply Preset</button>
-    <div class="menu-sep"></div>
-    <label class="inline"><input type="checkbox" id="showFieldLinesVisible" checked> <span>Show field lines</span></label>
-  </div>
-
-  <!-- Info drawer -->
-  <div id="infoDrawer" class="drawer" hidden>
-    <div class="drawer-head">
-      <h3>Play info</h3>
-      <button class="icon-btn ghost drawer-close" data-close="infoDrawer">
-        <svg viewBox="0 0 24 24" width="20" height="20"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
+      <input type="checkbox" id="showFieldLines" checked />
+      <input type="color" id="teamColor" value="#1d4ed8" />
+      <input type="text" id="playCategory" />
+      <input type="text" id="playCallCode" />
+      <textarea id="playNotes"></textarea>
+      <input type="checkbox" id="includeOnWristband" checked />
+      <input type="checkbox" id="intendedReceiver" />
     </div>
-    <label>Category <input type="text" id="playCategoryVisible" placeholder="e.g. Red Zone"></label>
-    <label>Call code <input type="text" id="playCallCodeVisible" placeholder="e.g. R-22"></label>
-    <label>Notes <textarea id="playNotesVisible" rows="4"></textarea></label>
-    <label class="inline"><input type="checkbox" id="includeOnWristbandVisible" checked> <span>Include on wristband</span></label>
-  </div>
 
-  <!-- Player edit popover -->
-  <div id="playerPopover" class="popover" hidden>
-    <h4>Edit Player</h4>
-    <label>Position <input type="text" id="popPosition"></label>
-    <label>Color <input type="color" id="popColor"></label>
-    <label>Shape
-      <select id="popShape">
-        <option value="circle">Circle</option>
-        <option value="square">Square</option>
-        <option value="triangle">Triangle</option>
-      </select>
-    </label>
-    <label class="inline"><input type="checkbox" id="popBallCarrier"> <span>Ball carrier</span></label>
-    <div class="popover-actions">
-      <button id="popClose">Close</button>
-      <button id="popDelete" class="danger">Delete</button>
+    <!-- ============ POPOVERS / MODALS ============ -->
+
+    <!-- Files menu -->
+    <div id="filesMenu" class="menu-pop" hidden>
+      <button id="newPlaybookBtn">New playbook</button>
+      <button id="openBtn">Open .json…</button>
+      <button id="saveBtn">Save .json</button>
+      <div class="menu-sep"></div>
+      <button id="exportPngBtn">Export current play (PNG)</button>
+      <button id="exportSvgBtn">Export current play (SVG)</button>
+      <button id="exportPdfBtn">Export playbook (PDF)…</button>
+      <button id="wristbandBtn">Export wristband (PDF)…</button>
     </div>
-  </div>
 
-  <!-- Resume draft prompt -->
-  <div id="resumePrompt" class="modal" hidden>
-    <div class="modal-card">
-      <h3>Resume unsaved playbook?</h3>
-      <p>An auto-saved draft was found from your last session.</p>
-      <div class="modal-actions">
-        <button id="resumeDiscard">Discard</button>
-        <button id="resumeKeep" class="primary">Resume</button>
+    <!-- Plays / Playbook drawer -->
+    <div id="playsDrawer" class="drawer" hidden>
+      <div class="drawer-head">
+        <h3>Playbook</h3>
+        <input
+          type="text"
+          id="playbookNameVisible"
+          placeholder="Playbook name"
+        />
+        <button class="icon-btn ghost drawer-close" data-close="playsDrawer">
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path
+              d="M6 6l12 12M18 6L6 18"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </div>
+      <ul id="playsList" class="plays-list"></ul>
+      <button id="addPlayBtn" class="full">+ Add Play</button>
+      <div class="menu-sep"></div>
+      <div class="row">
+        <button id="duplicatePlayBtn">Duplicate</button>
+        <button id="flipPlayBtn">Flip</button>
+        <button id="deletePlayBtn" class="danger">Delete</button>
       </div>
     </div>
-  </div>
 
-  <!-- Export PDF dialog -->
-  <div id="pdfDialog" class="modal" hidden>
-    <div class="modal-card">
-      <h3>Export Playbook to PDF</h3>
-      <label>Page size
-        <select id="pdfPageSize">
-          <option value="letter">Letter (8.5×11")</option>
-          <option value="a4">A4</option>
+    <!-- Roster drawer -->
+    <div id="rosterDrawer" class="drawer" hidden>
+      <div class="drawer-head">
+        <h3>Players</h3>
+        <button class="icon-btn ghost drawer-close" data-close="rosterDrawer">
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path
+              d="M6 6l12 12M18 6L6 18"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </div>
+      <ul id="rosterList" class="roster-list"></ul>
+    </div>
+
+    <!-- Formations drawer -->
+    <div id="formationsDrawer" class="drawer" hidden>
+      <div class="drawer-head">
+        <h3>Formation</h3>
+        <button
+          class="icon-btn ghost drawer-close"
+          data-close="formationsDrawer"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path
+              d="M6 6l12 12M18 6L6 18"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </div>
+      <label
+        >Team size
+        <select id="teamSizeVisible">
+          <option value="4">4 on 4</option>
+          <option value="5" selected>5 on 5</option>
+          <option value="6">6 on 6</option>
+          <option value="7">7 on 7</option>
+          <option value="8">8 on 8</option>
+          <option value="9">9 on 9</option>
         </select>
       </label>
-      <label>Orientation
-        <select id="pdfOrientation">
-          <option value="portrait">Portrait</option>
-          <option value="landscape">Landscape</option>
+      <label
+        >Preset
+        <select id="formationPresetVisible">
+          <option value="base-right">Base Right</option>
+          <option value="spread">Spread (2x2)</option>
+          <option value="bunch">Bunch</option>
+          <option value="singleback">Singleback</option>
         </select>
       </label>
-      <label>Plays per page
-        <select id="pdfPlaysPerPage">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="4">4</option>
+      <button id="applyPreset" class="full primary">Apply Preset</button>
+      <div class="menu-sep"></div>
+      <label class="inline"
+        ><input type="checkbox" id="showFieldLinesVisible" checked />
+        <span>Show field lines</span></label
+      >
+    </div>
+
+    <!-- Info drawer -->
+    <div id="infoDrawer" class="drawer" hidden>
+      <div class="drawer-head">
+        <h3>Play info</h3>
+        <button class="icon-btn ghost drawer-close" data-close="infoDrawer">
+          <svg viewBox="0 0 24 24" width="20" height="20">
+            <path
+              d="M6 6l12 12M18 6L6 18"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </div>
+      <label
+        >Category
+        <input type="text" id="playCategoryVisible" placeholder="e.g. Red Zone"
+      /></label>
+      <label
+        >Call code
+        <input type="text" id="playCallCodeVisible" placeholder="e.g. R-22"
+      /></label>
+      <label>Notes <textarea id="playNotesVisible" rows="4"></textarea></label>
+      <label class="inline"
+        ><input type="checkbox" id="includeOnWristbandVisible" checked />
+        <span>Include on wristband</span></label
+      >
+    </div>
+
+    <!-- Player edit popover -->
+    <div id="playerPopover" class="popover" hidden>
+      <h4>Edit Player</h4>
+      <label>Position <input type="text" id="popPosition" /></label>
+      <label>Color <input type="color" id="popColor" /></label>
+      <label
+        >Shape
+        <select id="popShape">
+          <option value="circle">Circle</option>
+          <option value="square">Square</option>
+          <option value="triangle">Triangle</option>
         </select>
       </label>
-      <label class="inline"><input type="checkbox" id="pdfIncludeNotes" checked> <span>Include notes</span></label>
-      <label class="inline"><input type="checkbox" id="pdfIncludeRoster"> <span>Include roster page</span></label>
-      <label class="inline"><input type="checkbox" id="pdfSinglePlay"> <span>Current play only</span></label>
-      <div class="modal-actions">
-        <button id="pdfCancel">Cancel</button>
-        <button id="pdfGo" class="primary">Generate PDF</button>
+      <label class="inline"
+        ><input type="checkbox" id="popBallCarrier" />
+        <span>Ball carrier</span></label
+      >
+      <div class="popover-actions">
+        <button id="popClose">Close</button>
+        <button id="popDelete" class="danger">Delete</button>
       </div>
     </div>
-  </div>
 
-  <!-- Wristband dialog -->
-  <div id="wristbandDialog" class="modal" hidden>
-    <div class="modal-card">
-      <h3>Export Wristband</h3>
-      <label>Size
-        <select id="wbSize">
-          <option value="small">Small (2.5×3.5")</option>
-          <option value="medium" selected>Medium (3×4")</option>
-          <option value="large">Large (3.5×5")</option>
-        </select>
-      </label>
-      <label>Columns <input type="number" id="wbCols" value="3" min="1" max="8"></label>
-      <label>Rows <input type="number" id="wbRows" value="5" min="1" max="12"></label>
-      <label class="inline"><input type="checkbox" id="wbShowNumbers" checked> <span>Show play numbers</span></label>
-      <div class="modal-actions">
-        <button id="wbCancel">Cancel</button>
-        <button id="wbGo" class="primary">Generate Wristband PDF</button>
+    <!-- Resume draft prompt -->
+    <div id="resumePrompt" class="modal" hidden>
+      <div class="modal-card">
+        <h3>Resume unsaved playbook?</h3>
+        <p>An auto-saved draft was found from your last session.</p>
+        <div class="modal-actions">
+          <button id="resumeDiscard">Discard</button>
+          <button id="resumeKeep" class="primary">Resume</button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script src="lib/jspdf.umd.min.js"></script>
-  <script src="lib/svg2pdf.umd.min.js"></script>
-  <script src="app.js"></script>
-  <script src="bind.js"></script>
-</body>
+    <!-- Export PDF dialog -->
+    <div id="pdfDialog" class="modal" hidden>
+      <div class="modal-card">
+        <h3>Export Playbook to PDF</h3>
+        <label
+          >Page size
+          <select id="pdfPageSize">
+            <option value="letter">Letter (8.5×11")</option>
+            <option value="a4">A4</option>
+          </select>
+        </label>
+        <label
+          >Orientation
+          <select id="pdfOrientation">
+            <option value="portrait">Portrait</option>
+            <option value="landscape">Landscape</option>
+          </select>
+        </label>
+        <label
+          >Plays per page
+          <select id="pdfPlaysPerPage">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="4">4</option>
+          </select>
+        </label>
+        <label class="inline"
+          ><input type="checkbox" id="pdfIncludeNotes" checked />
+          <span>Include notes</span></label
+        >
+        <label class="inline"
+          ><input type="checkbox" id="pdfIncludeRoster" />
+          <span>Include roster page</span></label
+        >
+        <label class="inline"
+          ><input type="checkbox" id="pdfSinglePlay" />
+          <span>Current play only</span></label
+        >
+        <div class="modal-actions">
+          <button id="pdfCancel">Cancel</button>
+          <button id="pdfGo" class="primary">Generate PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wristband dialog -->
+    <div id="wristbandDialog" class="modal" hidden>
+      <div class="modal-card">
+        <h3>Export Wristband</h3>
+        <label
+          >Size
+          <select id="wbSize">
+            <option value="small">Small (2.5×3.5")</option>
+            <option value="medium" selected>Medium (3×4")</option>
+            <option value="large">Large (3.5×5")</option>
+          </select>
+        </label>
+        <label
+          >Columns <input type="number" id="wbCols" value="3" min="1" max="8"
+        /></label>
+        <label
+          >Rows <input type="number" id="wbRows" value="5" min="1" max="12"
+        /></label>
+        <label class="inline"
+          ><input type="checkbox" id="wbShowNumbers" checked />
+          <span>Show play numbers</span></label
+        >
+        <div class="modal-actions">
+          <button id="wbCancel">Cancel</button>
+          <button id="wbGo" class="primary">Generate Wristband PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="lib/jspdf.umd.min.js"></script>
+    <script src="lib/svg2pdf.umd.min.js"></script>
+    <script src="app.js"></script>
+    <script src="bind.js"></script>
+  </body>
 </html>

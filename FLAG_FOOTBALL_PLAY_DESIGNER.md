@@ -29,7 +29,7 @@ There is **no backend, no auth, no server-side storage**. The entire app ships a
 
 - Cloud sync, accounts, multi-device sync.
 - Defensive playbook (offense only in v1; design data model so defense can be added later).
-- Mobile-first touch UX. (Mouse/trackpad first. Touch should *work* but won't be optimized.)
+- Mobile-first touch UX. (Mouse/trackpad first. Touch should _work_ but won't be optimized.)
 - Real-time multiplayer / collaboration.
 - A built-in route library ("Run a slant," "Run a post"). Routes are drawn freehand in v1.
 
@@ -107,53 +107,53 @@ The save file is JSON. One file can contain a whole playbook (multiple plays) or
 type Playbook = {
   schemaVersion: 1;
   name: string;
-  createdAt: string;            // ISO 8601
+  createdAt: string; // ISO 8601
   updatedAt: string;
   settings: {
     playersPerSide: 4 | 5 | 6 | 7 | 8 | 9;
-    fieldUnits: "yards";        // future-proof
+    fieldUnits: "yards"; // future-proof
     showFieldLines: boolean;
-    teamColor: string;          // hex, e.g. "#1d4ed8"
+    teamColor: string; // hex, e.g. "#1d4ed8"
     wristband: {
       size: "small" | "medium" | "large"; // see §6.8 for dimensions
-      columns: number;          // plays across (default 3)
-      rows: number;             // plays down (default depends on size)
+      columns: number; // plays across (default 3)
+      rows: number; // plays down (default depends on size)
       showPlayNumbers: boolean; // overlay 1, 2, 3 ... for huddle calls
     };
   };
-  roster: RosterEntry[];        // optional, can be empty
+  roster: RosterEntry[]; // optional, can be bunch
   plays: Play[];
 };
 
 type RosterEntry = {
-  id: string;                   // uuid
+  id: string; // uuid
   jerseyNumber?: string;
   name?: string;
-  defaultPositionLabel?: string;  // "QB", "WR1"
+  defaultPositionLabel?: string; // "QB", "WR1"
 };
 
 type Play = {
-  id: string;                   // uuid
+  id: string; // uuid
   name: string;
-  category?: string;            // "Red Zone", "3rd & Short"
+  category?: string; // "Red Zone", "3rd & Short"
   notes?: string;
-  playCallCode?: string;        // short label printed on wristband, e.g. "R-22"
-  includeOnWristband: boolean;  // default true
-  losYards: number;             // distance from bottom of field to LOS, default 10
-  ballStart: { x: number; y: number };  // where the ball sits at snap
+  playCallCode?: string; // short label printed on wristband, e.g. "R-22"
+  includeOnWristband: boolean; // default true
+  losYards: number; // distance from bottom of field to LOS, default 10
+  ballStart: { x: number; y: number }; // where the ball sits at snap
   players: Player[];
   annotations: Annotation[];
 };
 
 type Player = {
-  id: string;                   // uuid
-  positionLabel: string;        // "QB", "C", "WR1", "RB" — user editable
-  color: string;                // hex
-  shape: "circle" | "square" | "triangle";  // for visual differentiation
-  rosterId?: string;            // optional link to RosterEntry
+  id: string; // uuid
+  positionLabel: string; // "QB", "C", "WR1", "RB" — user editable
+  color: string; // hex
+  shape: "circle" | "square" | "triangle"; // for visual differentiation
+  rosterId?: string; // optional link to RosterEntry
   start: { x: number; y: number };
-  isBallCarrier: boolean;       // true for QB at snap by default
-  route?: Route;                // optional — linemen / blockers may have no route
+  isBallCarrier: boolean; // true for QB at snap by default
+  route?: Route; // optional — linemen / blockers may have no route
 };
 
 type Route = {
@@ -165,14 +165,21 @@ type Route = {
   // straight = polyline through anchors
   // zigzag   = pre-snap motion
   // dotted   = pitch / pass / hand-off
-  endCap: "arrow" | "tee" | "dot";   // "tee" = block, "dot" = stop/settle
-  color?: string;                    // overrides player color if set
-  isIntendedReceiver?: boolean;      // emphasize visually
+  endCap: "arrow" | "tee" | "dot"; // "tee" = block, "dot" = stop/settle
+  color?: string; // overrides player color if set
+  isIntendedReceiver?: boolean; // emphasize visually
 };
 
 type Annotation =
-  | { kind: "text"; id: string; x: number; y: number; text: string; fontSize: number }
-  | { kind: "ball"; id: string; x: number; y: number };  // extra ball marker
+  | {
+      kind: "text";
+      id: string;
+      x: number;
+      y: number;
+      text: string;
+      fontSize: number;
+    }
+  | { kind: "ball"; id: string; x: number; y: number }; // extra ball marker
 ```
 
 ### Coordinate system
@@ -201,7 +208,7 @@ Every file includes `schemaVersion`. The loader refuses files with a version it 
 ### 6.2 Players: placement & dragging
 
 - A roster panel on the left lists the players for the selected team size (e.g. 5-on-5 → 5 player slots).
-- Each player has a default starting position based on a chosen formation preset. Ship these 4 presets in v1: **Trips Right**, **Spread (2x2)**, **Empty (4 wide + QB)**, **Singleback (RB behind QB + 3 WRs)**. User can override by dragging.
+- Each player has a default starting position based on a chosen formation preset. Ship these 4 presets in v1: **Base Right**, **Spread (2x2)**, **Bunch (4 wide + QB)**, **Singleback (RB behind QB + 3 WRs)**. User can override by dragging.
 - Drag-and-drop rule: **a player's `start` must satisfy `y ≤ losYards`.** If the user releases above the LOS, snap back to the LOS or to the previous valid position. Show a brief visual hint (red dashed LOS line) while dragging illegally.
 - Snap-to-grid (0.5 yard increments) by default; hold `Shift` for free placement.
 - Players are rendered as colored shapes (circle by default) with the `positionLabel` text inside.
@@ -220,7 +227,7 @@ This is the most important interaction. Get it right.
 **Drawing**
 
 - **Click** to add an anchor at the cursor location.
-- **Click-and-drag** to add an anchor *and* immediately reposition it before release (useful for precise placement).
+- **Click-and-drag** to add an anchor _and_ immediately reposition it before release (useful for precise placement).
 - The route's first anchor is **implicit** — it's the player's current `start` position. The user does not click on the player to begin.
 - As the user moves the mouse, a **preview segment** is drawn from the last committed anchor to the cursor, styled per the current route style.
 - A live readout shows the route length in yards and the depth of the current segment relative to the LOS (useful for "go to 5 yards then break out").
@@ -228,9 +235,9 @@ This is the most important interaction. Get it right.
 **Editing an existing route**
 
 - Clicking a route selects it. Anchors become draggable handles.
-- **Insert anchor**: click on an empty span of a selected route → inserts an anchor at that point, splitting the segment.
+- **Insert anchor**: click on an bunch span of a selected route → inserts an anchor at that point, splitting the segment.
 - **Delete anchor**: select an anchor and press `Delete`. (At least 1 anchor must remain or the route is removed entirely.)
-- **Right-click an anchor** → context menu: Delete anchor, Convert next segment to {smooth, straight, dotted, zigzag} — *no, scratch that*: route style is a property of the whole route in v1 to keep the schema simple. Per-segment styles are v2.
+- **Right-click an anchor** → context menu: Delete anchor, Convert next segment to {smooth, straight, dotted, zigzag} — _no, scratch that_: route style is a property of the whole route in v1 to keep the schema simple. Per-segment styles are v2.
 - **Drag a route's mid-line** moves the whole route relative to the player.
 
 **Style & end cap controls**
@@ -242,12 +249,12 @@ This is the most important interaction. Get it right.
 
 **Rendering rules**
 
-| Style    | SVG output                                                                          |
-| -------- | ----------------------------------------------------------------------------------- |
-| straight | `<polyline>` through all anchors                                                    |
-| smooth   | Cubic Bézier path; Catmull-Rom interpolation through anchors                        |
+| Style    | SVG output                                                                                            |
+| -------- | ----------------------------------------------------------------------------------------------------- |
+| straight | `<polyline>` through all anchors                                                                      |
+| smooth   | Cubic Bézier path; Catmull-Rom interpolation through anchors                                          |
 | zigzag   | Replace each segment with a wave path (5–7 oscillations per segment, perpendicular amplitude ~0.4 yd) |
-| dotted   | `<polyline>` with `stroke-dasharray="2 2"`                                          |
+| dotted   | `<polyline>` with `stroke-dasharray="2 2"`                                                            |
 
 End caps render as SVG marker symbols at the last anchor, rotated to match the final segment's angle.
 
@@ -259,7 +266,7 @@ End caps render as SVG marker symbols at the last anchor, rotated to match the f
 ### 6.5 Play-level actions
 
 - **New play** — clear canvas (with unsaved-changes confirm).
-- **Flip play** — mirror everything horizontally across the field's vertical center line. Players and route anchors all flip; `positionLabel` text is *not* reversed.
+- **Flip play** — mirror everything horizontally across the field's vertical center line. Players and route anchors all flip; `positionLabel` text is _not_ reversed.
 - **Duplicate play** — clone current play into the playbook with name `"<name> (copy)"`.
 - **Rename play**, **set category**, **edit notes** — header bar.
 
@@ -268,7 +275,7 @@ End caps render as SVG marker symbols at the last anchor, rotated to match the f
 - "Play" button animates every player along their route.
 - **Timing model**: each player's animation duration = `routeLengthInYards / speedYardsPerSecond`. Default speed = 6 yd/s. A global speed slider scales all routes from 0.25× to 4×.
 - Players without a route remain stationary.
-- The ball follows the `isBallCarrier` player; if the ball is "thrown" (a route with style=dotted from QB to a receiver in v2), it follows the dotted path. *v1: ball just follows the ball carrier.*
+- The ball follows the `isBallCarrier` player; if the ball is "thrown" (a route with style=dotted from QB to a receiver in v2), it follows the dotted path. _v1: ball just follows the ball carrier._
 - Scrub bar lets the user drag through the animation timeline.
 - "Replay" loops the animation. "Pause" freezes mid-animation. "Reset" returns all players to `start`.
 
@@ -277,8 +284,8 @@ End caps render as SVG marker symbols at the last anchor, rotated to match the f
 - **Save**: serializes the current playbook to JSON and triggers a browser download via a blob URL. Filename: `<playbook-name>.json`.
 - **Save current play to new file**: same as save, but exports a playbook containing only the current play. Filename: `<play-name>.json`.
 - **Open**: a file picker (`<input type="file" accept=".json">`). On select, parse, validate against the schema, replace current state. If validation fails, show the validation error and refuse to load.
-- **Recent files**: list the last N opened filenames in `localStorage` and offer them in the Open menu. *(Note: browsers cannot re-open a previously chosen file without a fresh user gesture. The "recent" list just remembers names; clicking one re-opens the file picker pre-hinted with the name.)*
-- **Autosave to localStorage**: every change writes the in-progress playbook to a `localStorage` key (`ffpd:draft`). On page load, if a draft exists, prompt: "Resume unsaved playbook?" This protects against accidental refresh — it is *not* a substitute for the user explicitly saving a `.json`.
+- **Recent files**: list the last N opened filenames in `localStorage` and offer them in the Open menu. _(Note: browsers cannot re-open a previously chosen file without a fresh user gesture. The "recent" list just remembers names; clicking one re-opens the file picker pre-hinted with the name.)_
+- **Autosave to localStorage**: every change writes the in-progress playbook to a `localStorage` key (`ffpd:draft`). On page load, if a draft exists, prompt: "Resume unsaved playbook?" This protects against accidental refresh — it is _not_ a substitute for the user explicitly saving a `.json`.
 
 ### 6.8 Export
 
@@ -307,11 +314,11 @@ A "wristband" is a printed card a player wears on their wrist showing a grid of 
 
 - **Export wristbands to PDF** — produces a PDF sheet sized to print, cut, and laminate. Three wristband sizes (matching common youth/adult flag football wristband holders):
 
-  | Size   | Card dimensions | Default grid | Plays/card |
-  | ------ | --------------- | ------------ | ---------- |
-  | Small  | 2.5" × 3.5"     | 3 cols × 4 rows | 12       |
-  | Medium | 3" × 4"         | 3 cols × 5 rows | 15       |
-  | Large  | 3.5" × 5"       | 4 cols × 6 rows | 24       |
+  | Size   | Card dimensions | Default grid    | Plays/card |
+  | ------ | --------------- | --------------- | ---------- |
+  | Small  | 2.5" × 3.5"     | 3 cols × 4 rows | 12         |
+  | Medium | 3" × 4"         | 3 cols × 5 rows | 15         |
+  | Large  | 3.5" × 5"       | 4 cols × 6 rows | 24         |
 
   Grid dimensions are also overridable via `settings.wristband.columns` / `rows`.
 
@@ -379,21 +386,22 @@ relevant top-bar icon, and close on Esc or click-outside.
   default color so a coach can read the play at a glance without
   consulting a key. Default mapping:
 
-  | Label | Role               | Color     | Shape  |
-  | ----- | ------------------ | --------- | ------ |
-  | `Q`   | Quarterback        | `#dc2626` | circle |
-  | `C`   | Center / snapper   | `#6b7280` | square |
-  | `X`   | Split end          | `#ea7c1c` | circle |
-  | `Y`   | Flanker            | `#9333ea` | circle |
-  | `Z`   | Slot               | `#0d9488` | circle |
-  | `H`   | H-back             | `#3b82f6` | circle |
+  | Label   | Role             | Color                 | Shape  |
+  | ------- | ---------------- | --------------------- | ------ |
+  | `Q`     | Quarterback      | `#dc2626`             | circle |
+  | `C`     | Center / snapper | `#6b7280`             | square |
+  | `X`     | Split end        | `#ea7c1c`             | circle |
+  | `Y`     | Flanker          | `#9333ea`             | circle |
+  | `Z`     | Slot             | `#0d9488`             | circle |
+  | `H`     | H-back           | `#3b82f6`             | circle |
   | `A`/`B` | Additional WR    | `#f59e0b` / `#84cc16` | circle |
-  | `R`   | Running back       | `#ec4899` | circle |
-  | `G`/`T` | Lineman          | `#6b7280` | square |
+  | `R`     | Running back     | `#ec4899`             | circle |
+  | `G`/`T` | Lineman          | `#6b7280`             | square |
 
   Linemen and the centre are grey squares; all skill positions are
   circles. Labels are bold white single letters inside the token.
   Adding a player with a known label auto-applies its color and shape.
+
 - **Routes inherit the player's color.** A route's default render color
   is the assigned player's color. The user can override per-route via
   `Route.color`. Per-color marker symbols (arrow / tee / dot) are
@@ -413,23 +421,23 @@ relevant top-bar icon, and close on Esc or click-outside.
 
 ## 8. Keyboard shortcuts
 
-| Shortcut          | Action                          |
-| ----------------- | ------------------------------- |
-| `V`               | Select tool                     |
-| `R`               | Route tool (with player selected) |
-| `T`               | Text tool                       |
-| `B`               | Ball-marker tool                |
-| `Space + drag`    | Pan canvas                      |
-| `Cmd/Ctrl + scroll` | Zoom                          |
-| `Cmd/Ctrl + S`    | Save playbook                   |
-| `Cmd/Ctrl + O`    | Open playbook                   |
-| `Cmd/Ctrl + Z` / `Shift+Z` | Undo / Redo            |
-| `Cmd/Ctrl + D`    | Duplicate selected element      |
-| `F`               | Flip play                       |
-| `Delete`          | Delete selected                 |
-| `Esc`             | Exit current mode               |
-| `Enter`           | Confirm route in route mode     |
-| `Shift` (held)    | Disable snap-to-grid            |
+| Shortcut                   | Action                            |
+| -------------------------- | --------------------------------- |
+| `V`                        | Select tool                       |
+| `R`                        | Route tool (with player selected) |
+| `T`                        | Text tool                         |
+| `B`                        | Ball-marker tool                  |
+| `Space + drag`             | Pan canvas                        |
+| `Cmd/Ctrl + scroll`        | Zoom                              |
+| `Cmd/Ctrl + S`             | Save playbook                     |
+| `Cmd/Ctrl + O`             | Open playbook                     |
+| `Cmd/Ctrl + Z` / `Shift+Z` | Undo / Redo                       |
+| `Cmd/Ctrl + D`             | Duplicate selected element        |
+| `F`                        | Flip play                         |
+| `Delete`                   | Delete selected                   |
+| `Esc`                      | Exit current mode                 |
+| `Enter`                    | Confirm route in route mode       |
+| `Shift` (held)             | Disable snap-to-grid              |
 
 Undo/redo is required and operates on every mutation (player moves, route edits, annotations, settings changes).
 
@@ -441,7 +449,7 @@ Undo/redo is required and operates on every mutation (player moves, route edits,
 - **No dependencies on online assets at runtime.** Once the page is loaded (or the static bundle is on disk), it must work offline.
 - **File-system safety**: never silently overwrite. Save always triggers a browser download — the user chooses where it lands.
 - **Schema validation**: invalid `.json` shows a useful error, doesn't crash the app.
-- **Accessibility**: all toolbar buttons keyboard-reachable, focus rings visible. SVG elements have `aria-label`s describing the play. *(Note: drawing routes via keyboard alone is out of scope for v1.)*
+- **Accessibility**: all toolbar buttons keyboard-reachable, focus rings visible. SVG elements have `aria-label`s describing the play. _(Note: drawing routes via keyboard alone is out of scope for v1.)_
 - **Browser support**: latest 2 versions of Chrome, Edge, Firefox, Safari. No IE.
 
 ---
@@ -451,7 +459,7 @@ Undo/redo is required and operates on every mutation (player moves, route edits,
 The v1 is "done" when a coach can, in a fresh browser session:
 
 1. Open `index.html`.
-2. Choose 5-on-5, pick the "Trips Right" preset → see 5 players on the field behind the LOS.
+2. Choose 5-on-5, pick the "Base Right" preset → see 5 players on the field behind the LOS.
 3. Drag the slot receiver 2 yards inside → it stays behind the LOS, snaps to grid.
 4. Select that receiver, press `R`, click to draw an anchor 5 yards downfield, click again 3 yards to the sideline → a smooth route with an arrow end-cap is drawn.
 5. Change the route style to dotted and end cap to dot.
