@@ -179,9 +179,10 @@
         showFieldLines: true,
         teamColor: "#1d4ed8",
         wristband: {
-          size: "medium",
-          columns: 3,
-          rows: 5,
+          cardWidthCm: 13.5,
+          cardHeightCm: 7.5,
+          columns: 5,
+          rows: 3,
           showPlayNumbers: true,
         },
       },
@@ -488,9 +489,10 @@
           showFieldLines: true,
           teamColor: "#1d4ed8",
           wristband: {
-            size: "medium",
-            columns: 3,
-            rows: 5,
+            cardWidthCm: 13.5,
+            cardHeightCm: 7.5,
+            columns: 5,
+            rows: 3,
             showPlayNumbers: true,
           },
         },
@@ -607,55 +609,56 @@
   // ============================================================
   // Route rendering
   // ============================================================
-  // Dynamic per-color markers. Reuses an existing one if already added.
-  function ensureMarker(kind, color) {
-    const safeColor = color.replace("#", "");
-    const id = `mk-${kind}-${safeColor}`;
-    if (document.getElementById(id)) return id;
-    const defs = svg.querySelector("defs");
-    const m = document.createElementNS(SVG_NS, "marker");
-    m.setAttribute("id", id);
-    m.setAttribute("orient", "auto");
-    m.setAttribute("markerUnits", "strokeWidth");
+  function drawRouteCap(parent, endPoint, prevPoint, kind, color, strokeWidth) {
+    const dx = endPoint.x - prevPoint.x;
+    const dy = endPoint.y - prevPoint.y;
+    const len = Math.hypot(dx, dy);
+    if (len < 0.01) return;
+    const ux = dx / len, uy = dy / len;
+    const px = -uy, py = ux;
+    const sw = strokeWidth;
     if (kind === "arrow") {
-      // Open chevron — two strokes meeting at a point, no fill. Small + thin.
-      m.setAttribute("markerWidth", "5");
-      m.setAttribute("markerHeight", "5");
-      m.setAttribute("refX", "4");
-      m.setAttribute("refY", "2.5");
-      const p = document.createElementNS(SVG_NS, "path");
-      p.setAttribute("d", "M0,0 L4,2.5 L0,5");
-      p.setAttribute("fill", "none");
-      p.setAttribute("stroke", color);
-      p.setAttribute("stroke-width", "1");
-      p.setAttribute("stroke-linecap", "round");
-      p.setAttribute("stroke-linejoin", "round");
-      m.appendChild(p);
+      const back = sw * 4;
+      const wing = sw * 2.5;
+      const bx = endPoint.x - ux * back;
+      const by = endPoint.y - uy * back;
+      const p1x = bx + px * wing, p1y = by + py * wing;
+      const p2x = bx - px * wing, p2y = by - py * wing;
+      parent.appendChild(
+        el("path", {
+          class: "route-cap",
+          d: `M ${p1x} ${p1y} L ${endPoint.x} ${endPoint.y} L ${p2x} ${p2y}`,
+          fill: "none",
+          stroke: color,
+          "stroke-width": sw,
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round",
+        }),
+      );
     } else if (kind === "tee") {
-      m.setAttribute("markerWidth", "10");
-      m.setAttribute("markerHeight", "10");
-      m.setAttribute("refX", "1");
-      m.setAttribute("refY", "5");
-      const p = document.createElementNS(SVG_NS, "path");
-      p.setAttribute("d", "M0,0 L0,10");
-      p.setAttribute("stroke", color);
-      p.setAttribute("stroke-width", "2");
-      p.setAttribute("stroke-linecap", "round");
-      m.appendChild(p);
+      const half = sw * 3;
+      const p1x = endPoint.x + px * half, p1y = endPoint.y + py * half;
+      const p2x = endPoint.x - px * half, p2y = endPoint.y - py * half;
+      parent.appendChild(
+        el("path", {
+          class: "route-cap",
+          d: `M ${p1x} ${p1y} L ${p2x} ${p2y}`,
+          stroke: color,
+          "stroke-width": sw,
+          "stroke-linecap": "round",
+        }),
+      );
     } else if (kind === "dot") {
-      m.setAttribute("markerWidth", "10");
-      m.setAttribute("markerHeight", "10");
-      m.setAttribute("refX", "5");
-      m.setAttribute("refY", "5");
-      const c = document.createElementNS(SVG_NS, "circle");
-      c.setAttribute("cx", "5");
-      c.setAttribute("cy", "5");
-      c.setAttribute("r", "3");
-      c.setAttribute("fill", color);
-      m.appendChild(c);
+      parent.appendChild(
+        el("circle", {
+          class: "route-cap",
+          cx: endPoint.x,
+          cy: endPoint.y,
+          r: sw * 1.5,
+          fill: color,
+        }),
+      );
     }
-    defs.appendChild(m);
-    return id;
   }
 
   function buildPath(anchors, style) {
@@ -742,14 +745,6 @@
         selection?.kind === "route" && selection.id === player.id;
       const color = player.route.color || player.color || "#dc2626";
 
-      let markerAttr = "";
-      if (player.route.endCap === "arrow")
-        markerAttr = `url(#${ensureMarker("arrow", color)})`;
-      else if (player.route.endCap === "tee")
-        markerAttr = `url(#${ensureMarker("tee", color)})`;
-      else if (player.route.endCap === "dot")
-        markerAttr = `url(#${ensureMarker("dot", color)})`;
-
       const path = el("path", {
         class:
           "route-path" +
@@ -758,11 +753,24 @@
           (isSelected ? " selected" : ""),
         d,
         stroke: color,
-        "marker-end": markerAttr,
         "data-player-id": player.id,
       });
       path.style.fill = "none";
       routeLayer.appendChild(path);
+
+      // Inline end cap (drawn as actual SVG shapes — markers don't render
+      // reliably in svg2pdf exports).
+      if (abs.length >= 2 && player.route.endCap && player.route.endCap !== "none") {
+        const strokeW = player.route.isIntendedReceiver ? 4.5 : 3;
+        drawRouteCap(
+          routeLayer,
+          abs[abs.length - 1],
+          abs[abs.length - 2],
+          player.route.endCap,
+          color,
+          strokeW,
+        );
+      }
 
       // Anchors when selected
       if (isSelected) {
@@ -1903,7 +1911,7 @@
           doc.addPage();
           y = 0.7;
         }
-        doc.setFont(undefined, "bold");
+        doc.setFont("helvetica", "bold");
         doc.text(cat, 0.5, y);
         y += 0.25;
         doc.setFont(undefined, "normal");
@@ -2111,20 +2119,17 @@
       return;
     }
     const { jsPDF } = window.jspdf;
+    // Card dimensions are user-supplied in centimeters; PDF page is letter
+    // landscape so wider cards fit comfortably with crop marks around them.
     const doc = new jsPDF({
-      unit: "in",
+      unit: "cm",
       format: "letter",
-      orientation: "portrait",
+      orientation: "landscape",
     });
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
 
-    const sizes = {
-      small: { w: 2.5, h: 3.5 },
-      medium: { w: 3, h: 4 },
-      large: { w: 3.5, h: 5 },
-    };
-    const sz = sizes[options.size] || sizes.medium;
+    const sz = { w: options.cardWidthCm, h: options.cardHeightCm };
     const cols = options.columns;
     const rows = options.rows;
     const cellsPerCard = cols * rows;
@@ -2133,8 +2138,8 @@
     const totalCards = Math.max(1, Math.ceil(plays.length / cellsPerCard));
 
     // Layout cards on page: as many fit
-    const margin = 0.5;
-    const gap = 0.4;
+    const margin = 1.2;
+    const gap = 1.0;
     const cardsPerRow = Math.max(
       1,
       Math.floor((pageW - margin * 2 + gap) / (sz.w + gap)),
@@ -2158,27 +2163,38 @@
 
       // Card border
       doc.setDrawColor(180);
-      doc.setLineWidth(0.005);
+      doc.setLineWidth(0.015);
       doc.rect(x0, y0, sz.w, sz.h);
 
       // Header
+      const headerH = 0.5;
       doc.setFontSize(8);
       doc.setTextColor(40);
       doc.text(
         `${playbook.name}  ·  Wristband ${cardIdx + 1} of ${totalCards}`,
         x0 + sz.w / 2,
-        y0 + 0.18,
+        y0 + 0.35,
         { align: "center" },
       );
 
-      // Grid of plays
-      const headerH = 0.25;
+      // Grid of plays — cells are square so play diagrams aren't squished.
+      const gridPad = 0.15;
       const gridY = y0 + headerH;
-      const gridH = sz.h - headerH - 0.1;
-      const gridW = sz.w - 0.1;
-      const gridX = x0 + 0.05;
-      const cellW = gridW / cols;
-      const cellH = gridH / rows;
+      const gridH = sz.h - headerH - gridPad;
+      const gridW = sz.w - gridPad * 2;
+      const gridX = x0 + gridPad;
+      const cellSize = Math.min(gridW / cols, gridH / rows);
+      const usedW = cellSize * cols;
+      const usedH = cellSize * rows;
+      const offsetX = (gridW - usedW) / 2;
+      const offsetY = (gridH - usedH) / 2;
+
+      // PlaymakerX-style alternating header bands per row.
+      const ROW_THEMES = [
+        { bar: [15, 118, 110], badge: [19, 78, 74] },  // teal-700 / teal-900
+        { bar: [21, 128, 61], badge: [20, 83, 45] },   // green-700 / green-900
+      ];
+      const cellHeaderH = Math.min(0.5, cellSize * 0.22);
 
       for (let cell = 0; cell < cellsPerCard; cell++) {
         const playIdx = cardIdx * cellsPerCard + cell;
@@ -2186,31 +2202,58 @@
         const play = plays[playIdx];
         const cellCol = cell % cols;
         const cellRow = Math.floor(cell / cols);
-        const cx = gridX + cellCol * cellW;
-        const cy = gridY + cellRow * cellH;
-        // cell border
-        doc.setDrawColor(220);
-        doc.setLineWidth(0.005);
-        doc.rect(cx, cy, cellW, cellH);
-        // play number / call code
-        doc.setFontSize(7);
-        doc.setTextColor(20);
+        const cx = gridX + offsetX + cellCol * cellSize;
+        const cy = gridY + offsetY + cellRow * cellSize;
+        const theme = ROW_THEMES[cellRow % ROW_THEMES.length];
+
+        // Header bar
+        doc.setFillColor(theme.bar[0], theme.bar[1], theme.bar[2]);
+        doc.rect(cx, cy, cellSize, cellHeaderH, "F");
+        // Number badge (square on the left, darker shade)
+        const badgeW = cellHeaderH;
+        doc.setFillColor(theme.badge[0], theme.badge[1], theme.badge[2]);
+        doc.rect(cx, cy, badgeW, cellHeaderH, "F");
+        // Number text in badge
         const label = options.showNumbers
           ? String(playIdx + 1)
           : play.playCallCode || String(playIdx + 1);
-        doc.text(label, cx + 0.04, cy + 0.1);
-        // play name
-        doc.setFontSize(5);
-        doc.setTextColor(60);
-        const nameLines = doc.splitTextToSize(play.name, cellW - 0.1);
-        doc.text(nameLines.slice(0, 1), cx + cellW - 0.04, cy + 0.1, {
-          align: "right",
+        doc.setTextColor(255, 255, 255);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text(label, cx + badgeW / 2, cy + cellHeaderH / 2, {
+          align: "center",
+          baseline: "middle",
         });
-        // Diagram
-        const diagX = cx + 0.05;
-        const diagY = cy + 0.13;
-        const diagW = cellW - 0.1;
-        const diagH = cellH - 0.18;
+        // Play name to the right of the badge
+        doc.setFontSize(7);
+        const nameMaxW = cellSize - badgeW - 0.2;
+        const nameLines = doc.splitTextToSize(play.name || "", nameMaxW);
+        const shownLines = nameLines.slice(0, 2);
+        const lineSpacing = 0.22;
+        const nameStartY =
+          cy + cellHeaderH / 2 - ((shownLines.length - 1) * lineSpacing) / 2;
+        doc.text(shownLines, cx + badgeW + 0.12, nameStartY, {
+          baseline: "middle",
+          lineHeightFactor: 1.1,
+        });
+        doc.setFont("helvetica", "normal");
+
+        // Cell outline (subtle)
+        doc.setDrawColor(210);
+        doc.setLineWidth(0.012);
+        doc.rect(cx, cy, cellSize, cellSize);
+
+        // Diagram — square inside the cell, below the header bar.
+        const diagPad = 0.08;
+        const diagTop = cellHeaderH + diagPad;
+        const diagSize = Math.max(
+          0,
+          Math.min(cellSize - diagPad * 2, cellSize - diagTop - diagPad),
+        );
+        const diagX = cx + (cellSize - diagSize) / 2;
+        const diagY = cy + diagTop + (cellSize - diagTop - diagPad - diagSize) / 2;
+        const diagW = diagSize;
+        const diagH = diagSize;
         const tempPlayId = currentPlayId;
         const tempSel = selection;
         currentPlayId = play.id;
@@ -2249,9 +2292,9 @@
 
   function drawCropMarks(doc, x, y, w, h) {
     doc.setDrawColor(120);
-    doc.setLineWidth(0.005);
-    const len = 0.1;
-    const off = 0.04;
+    doc.setLineWidth(0.015);
+    const len = 0.3;
+    const off = 0.15;
     // 4 corners
     [
       [x, y, -1, -1],
@@ -2295,12 +2338,13 @@
   });
   document.getElementById("wristbandBtn").addEventListener("click", () => {
     document.getElementById("wristbandDialog").hidden = false;
-    document.getElementById("wbSize").value = playbook.settings.wristband.size;
-    document.getElementById("wbCols").value =
-      playbook.settings.wristband.columns;
-    document.getElementById("wbRows").value = playbook.settings.wristband.rows;
+    const wb = playbook.settings.wristband || {};
+    document.getElementById("wbWidthCm").value = wb.cardWidthCm ?? 13.5;
+    document.getElementById("wbHeightCm").value = wb.cardHeightCm ?? 7.5;
+    document.getElementById("wbCols").value = wb.columns ?? 5;
+    document.getElementById("wbRows").value = wb.rows ?? 3;
     document.getElementById("wbShowNumbers").checked =
-      playbook.settings.wristband.showPlayNumbers;
+      wb.showPlayNumbers !== false;
   });
 
   // PDF dialog
@@ -2326,12 +2370,17 @@
   });
   document.getElementById("wbGo").addEventListener("click", () => {
     const opts = {
-      size: document.getElementById("wbSize").value,
+      cardWidthCm:
+        parseFloat(document.getElementById("wbWidthCm").value) || 13.5,
+      cardHeightCm:
+        parseFloat(document.getElementById("wbHeightCm").value) || 7.5,
       columns: parseInt(document.getElementById("wbCols").value, 10),
       rows: parseInt(document.getElementById("wbRows").value, 10),
       showNumbers: document.getElementById("wbShowNumbers").checked,
     };
-    playbook.settings.wristband.size = opts.size;
+    if (!playbook.settings.wristband) playbook.settings.wristband = {};
+    playbook.settings.wristband.cardWidthCm = opts.cardWidthCm;
+    playbook.settings.wristband.cardHeightCm = opts.cardHeightCm;
     playbook.settings.wristband.columns = opts.columns;
     playbook.settings.wristband.rows = opts.rows;
     playbook.settings.wristband.showPlayNumbers = opts.showNumbers;
